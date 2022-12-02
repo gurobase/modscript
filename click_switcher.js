@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Click Switcher
-// @version      1.2
+// @version      1.3
 // @description  Switch post status with ease
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation

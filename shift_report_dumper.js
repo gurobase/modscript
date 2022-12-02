@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Shift Report Dumper
-// @version      1.2
+// @version      1.3
 // @description  Dump yours shift reports with ease.
 // @author       Guro
 // @match        https://control.stripchat.com/report/supportAdmin
@@ -11,6 +11,7 @@
 // @grant        GM_getValue
 // @grant        GM_deleteValue
 // @grant        GM.xmlHttpRequest
+// @downloadURL  https://raw.githubusercontent.com/gurobase/modscript/main/shift_report_dumper.js
 
 // ==/UserScript==
 if (!GM_getValue("spamDone")) {
