@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Shift Report Dumper
-// @version      1.3
+// @version      1.4
 // @description  Dump yours shift reports with ease.
 // @author       Guro
 // @match        https://control.stripchat.com/report/supportAdmin
@@ -366,7 +366,6 @@ if (window.location.href == "https://control.stripchat.com/report/supportAdmin")
                     var myClubAvatarsReport = jsonResponse.report[4]["data"]["total"];
                     var myClubBackgroundReport = jsonResponse.report[5]["data"]["total"];
                     var myClubDocumentsReport = jsonResponse.report[0]["data"]["total"];
-                    console.log(jsonResponse);
                     let shiftReportType = document.querySelector("#shiftReportTypeSelect");
                     let spamIncluded;
                     if (document.querySelector("#spamCheckbox").checked) {
@@ -601,7 +600,6 @@ if (window.location.href == "https://control.stripchat.com/report/supportAdmin")
 
         let fetchURLSpamGrey = "https://control.stripchat.com/api/admin/spamAlerts?search=&order=asc&limit=100&offset=0&filters[role]=greys";
         fetch(fetchURLSpamGrey).then(function(response) {
-            console.log(response);
             return response.json();
         }).then(function(data) {
             reportObject[0]["spamGrey"] = data["total"];
@@ -610,7 +608,6 @@ if (window.location.href == "https://control.stripchat.com/report/supportAdmin")
 
         let fetchURLGuest = "https://control.stripchat.com/api/admin/spamAlerts?search=&order=asc&limit=100&offset=0&filters[role]=guests";
         fetch(fetchURLGuest).then(function(response) {
-            console.log(response);
             return response.json();
         }).then(function(data) {
             reportObject[0]["spamGuests"] = data["total"];
@@ -619,7 +616,6 @@ if (window.location.href == "https://control.stripchat.com/report/supportAdmin")
 
         let fetchURLPaying = "https://control.stripchat.com/api/admin/spamAlerts?search=&order=asc&limit=100&offset=0&filters[role]=paying";
         fetch(fetchURLPaying).then(function(response) {
-            console.log(response);
             return response.json();
         }).then(function(data) {
             reportObject[0]["spamPaying"] = data["total"];
