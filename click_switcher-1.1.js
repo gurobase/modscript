@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Click Switcher
-// @version      1.2
+// @version      1.1
 // @description  Switch post status with ease
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation
@@ -12,7 +12,7 @@
 // @grant        GM_getValue
 // @grant        GM_deleteValue
 // @grant        GM.xmlHttpRequest
-// @downloadURL  
+// @downloadURL  https://raw.githubusercontent.com/gurobase/modscript/main/click_switcher-1.1.js
 
 // ==/UserScript==
 
