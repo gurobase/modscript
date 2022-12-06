@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Click Switcher
-// @version      1.5.1
+// @version      1.5.2
 // @description  Switch post status with ease
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation
@@ -43,6 +43,14 @@ Click switching in timeline posts, photos and videos is now available (click any
 Installation tutorial.
 Spam message click switching now only listens to clicks in the message window (not country, usernames, etc.) to prevent accidental switching.
 Click event now uses the internal event listener for better integration.
+
+1.1:
+Spam reports.
+Slightly updated formatting (shamelessly stolen from @Rubinstein’s shift reports).
+The ability to click-switch the spam report status (Left clicking the message area will switch the spam message status from Spam to Good User and vice versa. Note: you still have to click the Apply all button).
+
+1.0:
+Initial release.
 */
 
 
