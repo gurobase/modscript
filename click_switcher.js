@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Click Switcher
-// @version      1.5
+// @version      1.5.1
 // @description  Switch post status with ease
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation
@@ -15,6 +15,37 @@
 // @downloadURL  https://raw.githubusercontent.com/gurobase/modscript/main/click_switcher.js
 
 // ==/UserScript==
+
+
+//CHANGELOG
+
+/*
+1.5:
+CV fixer removed.
+New approve/reject all buttons.
+Better visual indicators for rejected content in photos, videos and timeline posts.
+
+1.4:
+Script auto update feature.
+Basic security shift dumper is now available (All it does is count documents from Stripchat and MyClub, no user reports, as those seem to be temporary).
+Updates/Fixes:
+Script has been separated into 2 parts for cleanliness and ease of further updates.
+Slight CSS adjustments.
+Separate Spam  button to include/exclude spam in your shift reports.
+Backlog videos are now counted in the queue dump.
+Automatic time of day shift namer (Morning, Afternoon, Night) now has a broader time range, to make up for breaks and daylight savings.
+Videos: in shift reports actually has a colon now.
+Auto spam feature has been removed.
+
+1.3:
+Click switching in timeline posts, photos and videos is now available (click anywhere in the field to switch the moderation status (Approve/Reject)).
+"Auto-spam" system (Highlight This extension required) with regular expressions for WhatsApp, SnapChat and Indian number detection and a button to automatically¹ mark everything detected as spam, as well as the ability to add any new keywords to the spam dictionary by right clicking the selection. Basic RegEx dictionary is provided below as a backup file.
+Installation tutorial.
+Spam message click switching now only listens to clicks in the message window (not country, usernames, etc.) to prevent accidental switching.
+Click event now uses the internal event listener for better integration.
+*/
+
+
 function insertCss(css) {
     const style = document.createElement('style');
     style.appendChild(document.createTextNode(css));
