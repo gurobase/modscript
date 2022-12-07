@@ -208,33 +208,6 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
 
 						});
 
-
-
-
-
-
-
-						// document.getElementById("approveAllButton").addEventListener("click", item => {
-						// 	if (!document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label > input[type=checkbox]").checked) {
-						// 		if (document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked) {
-						//             document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label").click();
-						//         }
-						//         document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label").click();
-						// 		rejectedStatusStyle(0);
-						// 	}
-						// });
-
-						// document.getElementById("rejectAllButton").addEventListener("click", item => {
-						// 	if (!document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked) {
-						//         if (document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label > input[type=checkbox]").checked) {
-						//             document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label").click();
-						//         }
-						// 		document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label").click();
-						// 		rejectedStatusStyle(1);
-						// 	}
-
-						// });
-
 						document.body.addEventListener('click', function(evt) {
 							if (evt.target.localName == "td" || evt.target.localName == "li" || evt.target.localName == "ul") {
 								let pathArray = evt.path;
