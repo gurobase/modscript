@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OP Admin Panel
-// @version      1.0.0
+// @version      1.1.0
 // @description  For when you need just a lil' bit more juice
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation
@@ -16,7 +16,16 @@
 
 // ==/UserScript==
 
+//CHANGELOG
+/*
 
+1.1.0:
+All content types are now supported for the Reviewer Dump.
+
+1.0.0:
+Initial release.
+
+*/
 
 var adminArray;
 if (typeof GM_getValue("agentArray") == "undefined") {
@@ -32,15 +41,6 @@ if (typeof GM_getValue("agentArray") == "undefined") {
 
 if (window.location.href == "https://control.stripchat.com/new/photos/moderation") {
 
-
-
-  
-
-
-    
-
-
-
     var photoIDArray = [];
     var diffRecordArray = [];
     var agentIDArray = [];
@@ -52,6 +52,7 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
     getReviewerDiv.innerHTML = `<button id="getReviewerButton" class="button is-primary" type=button>Get Reviewers</button>`
 
     function getReviewers() {
+        let diffType;
         document.getElementById("getReviewerButton").disabled = true;
         photoIDArray = [];
         console.log("Getting Photo IDs")
@@ -62,17 +63,18 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
             let checkbox = t.rows[r].querySelector("td.column-actions > div > div:nth-child(1) > label > input[type=checkbox]");
             let photoID = checkbox.value.split(":")[2];
             photoIDArray.push(photoID);
+            diffType = checkbox.value.split(":")[0];
         }
         console.log(photoIDArray);
-        getDiffRecords(photoIDArray);
+        getDiffRecords(photoIDArray, diffType);
 
     }
 
-    function getDiffRecords(photoIDArray) {
+    function getDiffRecords(photoIDArray, diffType) {
         console.log("Getting Record Diffs");
         diffRecordArray = [];
         let diffRecordPromises = photoIDArray.map(photoID => new Promise(resolve => {
-            let diffRecordURL = `https://control.stripchat.com/api/admin/diff?order=asc&limit=20&offset=0&recordId=${photoID}&tableName=photos&filters[recordId]=${photoID}&filters[tableName]=photos`;
+            let diffRecordURL = `https://control.stripchat.com/api/admin/diff?order=asc&limit=20&offset=0&recordId=${photoID}&tableName=${diffType}&filters[recordId]=${photoID}&filters[tableName]=${diffType}`;
 
             GM.xmlHttpRequest({
                 method: "GET",
