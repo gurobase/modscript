@@ -23,7 +23,7 @@
 1.6:
 Completely rewritten request listener that should work better and won't rely on timers.
 Content that's been rejected now automatically gets marked as red.
-Better approve/reject all behavior that should no longer bug out (Old checkboxes will remain for now, until it's more clear if the new buttons are completely bug-free)
+Better approve/reject all behavior that should no longer bug out (Old checkboxes will remain for now, until it's more clear if the new buttons are completely bug-free).
 
 1.5:
 CV fixer removed.
