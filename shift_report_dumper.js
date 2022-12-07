@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Shift Report Dumper
-// @version      1.4
+// @version      1.4.0
 // @description  Dump yours shift reports with ease.
 // @author       Guro
 // @match        https://control.stripchat.com/report/supportAdmin
