@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Click Switcher
-// @version      1.5.2
+// @version      1.6.0
 // @description  Switch post status with ease
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation
@@ -20,6 +20,11 @@
 //CHANGELOG
 
 /*
+1.6:
+Completely rewritten request listener that should work better and won't rely on timers.
+Content that's been rejected now automatically gets marked as red.
+Better approve/reject all behavior that should no longer bug out (Old checkboxes will remain for now, until it's more clear if the new buttons are completely bug-free)
+
 1.5:
 CV fixer removed.
 New approve/reject all buttons.
@@ -55,10 +60,10 @@ Initial release.
 
 
 function insertCss(css) {
-    const style = document.createElement('style');
-    style.appendChild(document.createTextNode(css));
-    document.head.appendChild(style);
-    return style;
+	const style = document.createElement('style');
+	style.appendChild(document.createTextNode(css));
+	document.head.appendChild(style);
+	return style;
 }
 
 var adminPanelStyle = (`
@@ -111,238 +116,360 @@ rejectAllDiv.innerHTML = `<button id="rejectAllButton" class="button is-primary 
 
 
 if (window.location.href == "https://control.stripchat.com/new/photos/moderation") {
+	var pageLoaded = false;
+	let headMain = "";
+	let approveAllField;
+	let rejectAllField;
+	const observerPhotos = new PerformanceObserver((list) => {
+		for (const entry of list.getEntries()) {
+			if (entry.initiatorType === "fetch") {
+				if (entry.name === "https://control.stripchat.com/api/admin/v2/photos/list") {
+					let bodyMain = document.querySelector("body > div > div > main");
+					if (headMain != bodyMain.querySelector("div > div.table-wrapper.has-mobile-cards > table > thead > tr")) {
+						headMain = bodyMain.querySelector("div > div.table-wrapper.has-mobile-cards > table > thead > tr");
+						approveAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1)");
+						rejectAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2)");
+						approveAllField.appendChild(approveAllDiv);
+						rejectAllField.appendChild(rejectAllDiv);
+					};
+
+					approveAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1)");
+					rejectAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2)");
+					if (pageLoaded == false) {
+						function rejectedStatusStyle(res) {
+
+							var table = document.getElementsByClassName("table");
+							var t = table[0];
+							for (var r = 1; r < t.rows.length; r++) {
+								if (res == 1 && document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked == true) {
+									t.rows[r].classList.add("contentRejected");
+								} else {
+									t.rows[r].classList.remove("contentRejected");
+								}
+							}
+						}
 
 
-    
-
-    function rejectedStatusStyle(res) {
-
-        var table = document.getElementsByClassName("table");
-        var t = table[0];
-        for (var r = 1; r < t.rows.length; r++) {
-            if (res == 1 && document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked == true) {
-                t.rows[r].classList.add("contentRejected");
-            } else {
-                t.rows[r].classList.remove("contentRejected");
-            }
-        }
-    }
-
-    function waitForWebsite() {
-        
-        let headDestroyed = false;
-
-        if (document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > tbody > tr:nth-child(2)")) {
+						approveAllField.appendChild(approveAllDiv);
+						rejectAllField.appendChild(rejectAllDiv);
 
 
-            let approveAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1)");
-            let rejectAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2)");
-
-            document.querySelector("body > div > div > main").addEventListener("DOMSubtreeModified", contentChanged, false);
-
-            let bodyMain = document.querySelector("body > div > div > main");
-
-            function contentChanged() {
-                if (!bodyMain.querySelector("div > div.table-wrapper.has-mobile-cards > table > thead > tr")) {
-                    headDestroyed = true;
-                } else if (headDestroyed == true) {
-                    approveAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1)");
-                    rejectAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2)");
-                    headDestroyed = false;
-                    approveAllField.appendChild(approveAllDiv);
-                    rejectAllField.appendChild(rejectAllDiv);
-                }
-
-            }
-
-            
-
-            approveAllField.appendChild(approveAllDiv);
-            rejectAllField.appendChild(rejectAllDiv);
 
 
-            document.getElementById("approveAllButton").addEventListener("click", item => {
-                if (!document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label > input[type=checkbox]").checked) {
-                    document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label").click();
-                    rejectedStatusStyle(0);
-                }
-            });
+						let approveAllLabel = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label")
+						let rejectAllLabel = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label");
 
-            document.getElementById("rejectAllButton").addEventListener("click", item => {
-                if (!document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked) {
-                    document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label").click();
-                    rejectedStatusStyle(1);
-                }
-                
-            });
-
-            let submitButtons = document.getElementsByClassName("button is-primary");
-            for (let button of submitButtons) {
-                if (!button.classList.contains("approveAllButton") && !button.classList.contains("rejectAllButton")) {
-                    button.addEventListener('click', item => {
-                        var table = document.getElementsByClassName("table");
-                        var t = table[0];
-                        for (var r = 1; r < t.rows.length; r++) {
-                            t.rows[r].classList.remove("contentRejected");
-                        }
-                    
-                        if (approveAllField.querySelector("label > input[type=checkbox]").checked == true) {
-                            approveAllField.click();
-                        }
-                        if (rejectAllField.querySelector("label > input[type=checkbox]").checked == true) {
-                            rejectAllField.click();
-                        }
-                    });
-                }
-                
-            }
-
-            document.body.addEventListener('click', function(evt) {
-                
-                if (evt.target.localName == "td") {
-                    let checkboxQuery = evt.path[1].querySelector('.column-actions > div');
-                    let approveField = checkboxQuery.querySelector('div:nth-child(1) > label');
-                    let rejectField = checkboxQuery.querySelector('div:nth-child(2) > label');
-                    let approveCheckbox = approveField.querySelector('input[type=checkbox');
+						document.getElementById("approveAllButton").addEventListener("click", item => {
+							if (rejectAllLabel.querySelector("input[type=checkbox]").checked) {
+								rejectAllLabel.click();
+							}
+							if (!approveAllLabel.querySelector("input[type=checkbox]").checked) {
+								approveAllLabel.click();
+								rejectedStatusStyle(0);
+							} else {
+								approveAllLabel.click();
+								approveAllLabel.click();
+								rejectedStatusStyle(0);
+							}
+						});
 
 
-                    if (approveCheckbox.checked == true) {
-                        evt.path[1].classList.add("contentRejected");
-                        rejectField.click();
-                    } else {
-                        evt.path[1].classList.remove("contentRejected");
-                        approveField.click();
-                    }
-                }
-            }, false);
+						document.getElementById("rejectAllButton").addEventListener("click", item => {
+							if (approveAllLabel.querySelector("input[type=checkbox]").checked) {
+								approveAllLabel.click();
+							}
+							if (!rejectAllLabel.querySelector("input[type=checkbox]").checked) {
+								rejectAllLabel.click();
+								rejectedStatusStyle(1);
+							} else {
+								rejectAllLabel.click();
+								rejectAllLabel.click();
+								rejectedStatusStyle(1);
+							}
+
+						});
 
 
-        } else {
-            setTimeout(waitForWebsite, 15);
-        }
-    }
 
-    waitForWebsite();
+
+
+
+
+						// document.getElementById("approveAllButton").addEventListener("click", item => {
+						// 	if (!document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label > input[type=checkbox]").checked) {
+						// 		if (document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked) {
+						//             document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label").click();
+						//         }
+						//         document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label").click();
+						// 		rejectedStatusStyle(0);
+						// 	}
+						// });
+
+						// document.getElementById("rejectAllButton").addEventListener("click", item => {
+						// 	if (!document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked) {
+						//         if (document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label > input[type=checkbox]").checked) {
+						//             document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label").click();
+						//         }
+						// 		document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label").click();
+						// 		rejectedStatusStyle(1);
+						// 	}
+
+						// });
+
+						document.body.addEventListener('click', function(evt) {
+							if (evt.target.localName == "td" || evt.target.localName == "li" || evt.target.localName == "ul") {
+								let pathArray = evt.path;
+								let trNumber = pathArray.length - 12;
+								let checkboxQuery = evt.path[trNumber].querySelector('.column-actions > div');
+								let approveField = checkboxQuery.querySelector('div:nth-child(1) > label');
+								let rejectField = checkboxQuery.querySelector('div:nth-child(2) > label');
+								let approveCheckbox = approveField.querySelector('input[type=checkbox');
+								if (approveCheckbox.checked == true) {
+									evt.path[trNumber].classList.add("contentRejected");
+									rejectField.click();
+								} else {
+									evt.path[trNumber].classList.remove("contentRejected");
+									approveField.click();
+								}
+							}
+						}, false);
+
+						pageLoaded = true;
+					} else {
+
+					}
+					var table = document.getElementsByClassName("table");
+					var t = table[0];
+					for (var r = 1; r < t.rows.length - 1; r++) {
+						if (t.rows[r].querySelector("td.column-actions > div > div:nth-child(2) > label > input[type=checkbox]").checked == true && t.rows[r].classList.contains("contentRejected") == false) {
+							t.rows[r].classList.add("contentRejected");
+						} else {
+							t.rows[r].classList.remove("contentRejected");
+						}
+
+					}
+
+				}
+
+			}
+		}
+	});
+
+	observerPhotos.observe({
+		type: "resource"
+	});
+
 } else if (window.location.href == "https://control.stripchat.com/new/posts/moderation") {
 
-    function waitForWebsite() {
+
+	var pageLoaded = false;
+	let headMain = "";
+	let approveAllField;
+	let rejectAllField;
+
+	const observerPosts = new PerformanceObserver((list) => {
+		for (const entry of list.getEntries()) {
+			if (entry.initiatorType === "fetch") {
+
+				if (entry.name.includes("https://control.stripchat.com/api/admin/v2/posts/")) {
+					let bodyMain = document.querySelector("body > div > div > main");
+					let headMain = bodyMain.querySelector("div > div.table-wrapper.has-mobile-cards > table > thead");
+					let approveAllField = headMain.querySelector("tr > th:nth-child(3) > div > span > div > div > div:nth-child(1)");
+					let rejectAllField = headMain.querySelector("tr > th:nth-child(3) > div > span > div > div > div:nth-child(2)");
 
 
-        function rejectedStatusStyle(res) {
+					if (pageLoaded == false) {
+						approveAllField.appendChild(approveAllDiv);
+						rejectAllField.appendChild(rejectAllDiv);
 
-            var table = document.getElementsByClassName("table");
-            var t = table[0];
-            for (var r = 1; r < t.rows.length; r++) {
-                if (res == 1 && document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked == true) {
-                    t.rows[r].classList.add("contentRejected");
-                } else {
-                    t.rows[r].classList.remove("contentRejected");
-                }
-            }
-        }
-        
-        if (document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > tbody tr:nth-child(2)")) {
+						function rejectedStatusStyle(res) {
 
-            let approveAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1)");
-            let rejectAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2)");
+							var table = document.getElementsByClassName("table");
+							var t = table[0];
+							for (var r = 1; r < t.rows.length; r++) {
+								if (res == 1 && document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-child(3) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked == true) {
+									t.rows[r].classList.add("contentRejected");
+								} else {
+									t.rows[r].classList.remove("contentRejected");
+								}
+							}
+						}
+						let approveAllLabel = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-child(3) > div > span > div > div > div:nth-child(1) > label");
+						let rejectAllLabel = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-child(3) > div > span > div > div > div:nth-child(2) > label");
+						document.getElementById("approveAllButton").addEventListener("click", item => {
+							if (rejectAllLabel.querySelector("input[type=checkbox]").checked) {
+								rejectAllLabel.click();
+							}
+							if (!approveAllLabel.querySelector("input[type=checkbox]").checked) {
+								approveAllLabel.click();
+								rejectedStatusStyle(0);
+							} else {
+								approveAllLabel.click();
+								approveAllLabel.click();
+								rejectedStatusStyle(0);
+							}
+						});
 
-            
+						document.getElementById("rejectAllButton").addEventListener("click", item => {
+							if (approveAllLabel.querySelector("input[type=checkbox]").checked) {
+								approveAllLabel.click();
+							}
+							if (!rejectAllLabel.querySelector("input[type=checkbox]").checked) {
+								rejectAllLabel.click();
+								rejectedStatusStyle(1);
+							} else {
+								rejectAllLabel.click();
+								rejectAllLabel.click();
+								rejectedStatusStyle(1);
+							}
 
-            approveAllField.appendChild(approveAllDiv);
-            rejectAllField.appendChild(rejectAllDiv);
+						});
 
-            document.getElementById("approveAllButton").addEventListener("click", item => {
-                if (!document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label > input[type=checkbox]").checked) {
-                    document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label").click();
-                    rejectedStatusStyle(0);
-                }
-            });
 
-            document.getElementById("rejectAllButton").addEventListener("click", item => {
-                if (!document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked) {
-                    document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label").click();
-                    rejectedStatusStyle(1);
-                }
-                
-            });
+						document.body.addEventListener('click', function(evt) {
+							if (evt.target.localName == "td" || evt.target.localName == "li" || evt.target.localName == "ul") {
+								let pathArray = evt.path;
+								let trNumber = pathArray.length - 12;
+								let checkboxQuery = evt.path[trNumber].querySelector('.column-actions > div');
+								let approveField = checkboxQuery.querySelector('div:nth-child(1) > label');
+								let rejectField = checkboxQuery.querySelector('div:nth-child(2) > label');
+								let approveCheckbox = approveField.querySelector('input[type=checkbox');
+								if (approveCheckbox.checked == true) {
+									evt.path[trNumber].classList.add("contentRejected");
+									rejectField.click();
+								} else {
+									evt.path[trNumber].classList.remove("contentRejected");
+									approveField.click();
+								}
+							}
+						}, false);
+						pageLoaded = true;
+					}
 
-            let submitButtons = document.getElementsByClassName("button is-primary");
-            for (let button of submitButtons) {
-                if (!button.classList.contains("approveAllButton") && !button.classList.contains("rejectAllButton")) {
+					var table = document.getElementsByClassName("table");
+					var t = table[0];
+					for (var r = 1; r < t.rows.length - 1; r++) {
+						if (t.rows[r].querySelector("td.column-actions > div > div:nth-child(2) > label > input[type=checkbox]").checked == true && t.rows[r].classList.contains("contentRejected") == false) {
+							t.rows[r].classList.add("contentRejected");
+						} else {
+							t.rows[r].classList.remove("contentRejected");
+						}
 
-                    button.addEventListener('click', item => {
-                        var table = document.getElementsByClassName("table");
-                        var t = table[0];
-                        for (var r = 1; r < t.rows.length; r++) {
-                            t.rows[r].classList.remove("contentRejected");
-                        }
+					}
 
-                        if (approveAllField.querySelector("label > input[type=checkbox]").checked == true) {
-                            approveAllField.click();
-                        }
-                        if (rejectAllField.querySelector("label > input[type=checkbox]").checked == true) {
-                            rejectAllField.click();
-                        }
-                    })
-                }
-            }
+				}
 
-            document.body.addEventListener('click', function(evt) {
-                if (evt.target.localName == "td" || evt.target.localName == "li" || evt.target.localName == "ul") {
-                    let pathArray = evt.path;
-                    let trNumber = pathArray.length - 12;
-                    let checkboxQuery = evt.path[trNumber].querySelector('.column-actions > div');
-                    let approveField = checkboxQuery.querySelector('div:nth-child(1) > label');
-                    let rejectField = checkboxQuery.querySelector('div:nth-child(2) > label');
-                    let approveCheckbox = approveField.querySelector('input[type=checkbox');
-                    if (approveCheckbox.checked == true) {
-                        evt.path[trNumber].classList.add("contentRejected");
-                        rejectField.click();
-                    } else {
-                        evt.path[trNumber].classList.remove("contentRejected");
-                        approveField.click();
-                    }
-                }
-            }, false);
-        } else {
-            setTimeout(waitForWebsite, 15);
-        }
-    }
-    waitForWebsite();
+			}
+		}
+	});
+	observerPosts.observe({
+		type: "resource"
+	})
 } else if (window.location.href == "https://control.stripchat.com/new/review/video") {
-    
-    function waitForWebsite() {
-        if (document.querySelector("body > div > div > main > div.b-table.table-video-review > div.table-wrapper.has-mobile-cards > table > tbody > tr:nth-child(2)")) {
 
-            let level = document.querySelector("body > div > div > main > div.b-table.table-video-review > div:nth-child(4)");
-            let levelRight = level.querySelector("div.level-right");
-            let submitButton = document.querySelector("body > div > div > main > section > div > button");
-            level.insertBefore(submitButton, levelRight);
+	let headMain;
+	var pageLoaded = false;
 
-            let submitButtons = document.getElementsByClassName("button is-primary");
-            for (let button of submitButtons) {
-                button.addEventListener('click', clearRejectedStyle);
-            }
-            
-            document.body.addEventListener('click', function(evt) {
-                if (evt.target.localName == "td") {
-                    let approveCheckbox = evt.path[1].querySelector('td:nth-child(6) > div > label > input[type=checkbox]');
-                    let approveField = evt.path[1].querySelector('td:nth-child(6) > div > label');
-                    let rejectField = evt.path[1].querySelector('td.column-actions > div > label');
-                    if (approveCheckbox.checked == true) {
-                        evt.path[1].classList.add("contentRejected");
-                        rejectField.click();
-                    } else {
-                        evt.path[1].classList.remove("contentRejected");
-                        approveField.click();
-                    }
-                }
-            }, false);
-        } else {
-            setTimeout(waitForWebsite, 15);
-        }
-    }
-    waitForWebsite();
+	function rejectedStatusStyle(res) {
+
+		var table = document.getElementsByClassName("table");
+		var t = table[0];
+		for (var r = 1; r < t.rows.length; r++) {
+			if (res == 1 && document.querySelector("body > div > div > main > div.b-table.table-video-review > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-child(7) > div.th-wrap > span > div > label > input[type=checkbox]").checked == true) {
+				t.rows[r].classList.add("contentRejected");
+			} else {
+				t.rows[r].classList.remove("contentRejected");
+			}
+		}
+	}
+
+	const observerVideos = new PerformanceObserver((list) => {
+		for (const entry of list.getEntries()) {
+			if (entry.initiatorType === "fetch") {
+				if (entry.name.includes("https://control.stripchat.com/api/admin/v2/review/videos/")) {
+
+					let bodyMain = document.querySelector("body > div > div > main");
+					headMain = bodyMain.querySelector("div.b-table.table-video-review > div.table-wrapper.has-mobile-cards > table > thead");
+					let approveAllField = headMain.querySelector("tr > th:nth-child(6)");
+					let rejectAllField = headMain.querySelector("tr > th:nth-child(7)");
+					approveAllField.appendChild(approveAllDiv);
+					rejectAllField.appendChild(rejectAllDiv);
+
+					let approveAllLabel = document.querySelector("body > div > div > main > div.b-table.table-video-review > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-child(6) > div.th-wrap > span > div > label");
+					let rejectAllLabel = document.querySelector("body > div > div > main > div.b-table.table-video-review > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-child(7) > div.th-wrap > span > div > label");
+
+					document.getElementById("approveAllButton").addEventListener("click", item => {
+						if (rejectAllLabel.querySelector("input[type=checkbox]").checked) {
+							rejectAllLabel.click();
+						}
+						if (!approveAllLabel.querySelector("input[type=checkbox]").checked) {
+							approveAllLabel.click();
+							rejectedStatusStyle(0);
+						} else {
+							approveAllLabel.click();
+							approveAllLabel.click();
+							rejectedStatusStyle(0);
+						}
+					});
+
+
+					document.getElementById("rejectAllButton").addEventListener("click", item => {
+						if (approveAllLabel.querySelector("input[type=checkbox]").checked) {
+							approveAllLabel.click();
+						}
+						if (!rejectAllLabel.querySelector("input[type=checkbox]").checked) {
+							rejectAllLabel.click();
+							rejectedStatusStyle(1);
+						} else {
+							rejectAllLabel.click();
+							rejectAllLabel.click();
+							rejectedStatusStyle(1);
+						}
+
+					});
+
+
+					if (pageLoaded == false) {
+						let level = document.querySelector("body > div > div > main > div.b-table.table-video-review > div:nth-child(4)");
+						let levelRight = level.querySelector("div.level-right");
+						let submitButton = document.querySelector("body > div > div > main > section > div > button");
+						level.insertBefore(submitButton, levelRight);
+
+
+						document.body.addEventListener('click', function(evt) {
+							if (evt.target.localName == "td") {
+								let approveCheckbox = evt.path[1].querySelector('td:nth-child(6) > div > label > input[type=checkbox]');
+								let approveField = evt.path[1].querySelector('td:nth-child(6) > div > label');
+								let rejectField = evt.path[1].querySelector('td.column-actions > div > label');
+								if (approveCheckbox.checked == true) {
+									evt.path[1].classList.add("contentRejected");
+									rejectField.click();
+								} else {
+									evt.path[1].classList.remove("contentRejected");
+									approveField.click();
+								}
+							}
+						}, false);
+
+						pageLoaded = true;
+					}
+
+					var table = document.getElementsByClassName("table");
+					var t = table[0];
+					for (var r = 1; r < t.rows.length - 1; r++) {
+						if (t.rows[r].querySelector("td.column-actions > div > label > input[type=checkbox]").checked == true && t.rows[r].classList.contains("contentRejected") == false) {
+							t.rows[r].classList.add("contentRejected");
+						} else {
+							t.rows[r].classList.remove("contentRejected");
+						}
+
+					}
+				}
+			}
+		}
+	});
+
+	observerVideos.observe({
+		type: "resource"
+	});
 }
-
-
