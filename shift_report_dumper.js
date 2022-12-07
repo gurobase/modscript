@@ -14,22 +14,20 @@
 // @downloadURL  https://raw.githubusercontent.com/gurobase/modscript/main/shift_report_dumper.js
 
 // ==/UserScript==
-
-
-var myVersion = GM_info.script.version; 
+var myVersion = GM_info.script.version;
 var myName = "shift_report_dumper";
 let newVersion;
 if (!GM_getValue("updateChecked")) {
     GM_setValue("updateChecked", false);
 }
 
-    let fetchURLDocsModel = "https://raw.githubusercontent.com/gurobase/modscript/main/versions.json"
-        fetch(fetchURLDocsModel).then(function(response) {
-            return response.json();
-        }).then(function(data) {
-            newVersion = data.find(x => x.name === myName).version;
-            checkVersion(newVersion);
-        });
+let fetchURLDocsModel = "https://raw.githubusercontent.com/gurobase/modscript/main/versions.json"
+fetch(fetchURLDocsModel).then(function(response) {
+    return response.json();
+}).then(function(data) {
+    newVersion = data.find(x => x.name === myName).version;
+    checkVersion(newVersion);
+});
 
 
 
@@ -806,18 +804,18 @@ function checkVersion(newVersion) {
 
     a = myVersion;
     b = newVersion;
-    let x=a.split('.').map(e=> parseInt(e));
-    let y=b.split('.').map(e=> parseInt(e));
+    let x = a.split('.').map(e => parseInt(e));
+    let y = b.split('.').map(e => parseInt(e));
     let z = "";
 
-    for(i=0;i<x.length;i++) {
-        if(x[i] === y[i]) {
-            z+="e";
+    for (i = 0; i < x.length; i++) {
+        if (x[i] === y[i]) {
+            z += "e";
         } else
-        if(x[i] > y[i]) {
-            z+="m";
+        if (x[i] > y[i]) {
+            z += "m";
         } else {
-            z+="l";
+            z += "l";
         }
     }
     if (GM_getValue("updateChecked") == true) {
@@ -842,7 +840,7 @@ function checkVersion(newVersion) {
             alert(`A new update is available for ${GM_info.script.name}! Current version: ${a}. Available version: ${b}`);
             GM_setValue("updateChecked", true);
         }
-        
+
     }
-    
+
 }
