@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Click Switcher
-// @version      1.6.0
+// @version      1.6.1
 // @description  Switch post status with ease
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation
@@ -58,13 +58,25 @@ The ability to click-switch the spam report status (Left clicking the message ar
 Initial release.
 */
 
-var myVersion = GM_info.script.version; 
-var myName = GM_info.script.name;
 
-fetch('https://raw.githubusercontent.com/gurobase/modscript/main/versions.json')
-  .then((response) => response.json())
-  .then((data) => 
-  console.log(data.find(x => x.name === myName)));
+
+
+
+
+var myVersion = GM_info.script.version; 
+var myName = "click_switcher";
+
+if (!GM_getValue("updateChecked")) {
+    GM_setValue("updateChecked", false);
+}
+    fetch('https://raw.githubusercontent.com/gurobase/modscript/main/versions.json')
+    .then((response) => response.json())
+    .then((data) => 
+    checkVersion(data));
+
+
+
+
 
 function insertCss(css) {
 	const style = document.createElement('style');
@@ -479,4 +491,51 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
 	observerVideos.observe({
 		type: "resource"
 	});
+}
+
+function checkVersion(data) {
+    let a;
+    let b;
+
+    a = myVersion;
+    b = data.find(x => x.name = myName).version;
+    let x=a.split('.').map(e=> parseInt(e));
+    let y=b.split('.').map(e=> parseInt(e));
+    let z = "";
+
+    for(i=0;i<x.length;i++) {
+        if(x[i] === y[i]) {
+            z+="e";
+        } else
+        if(x[i] > y[i]) {
+            z+="m";
+        } else {
+            z+="l";
+        }
+    }
+    if (GM_getValue("updateChecked") == true) {
+        if (!z.match(/[l|m]/g)) {
+            console.log("Latest script version installed");
+            GM_setValue("updateChecked", false);
+        } else if (z.split('e').join('')[0] == "m") {
+            console.log("Latest script version installed");
+            GM_setValue("updateChecked", false);
+        } else {
+            console.log(`A new ${GM_info.script.name} version available.`);
+        }
+    } else {
+        if (!z.match(/[l|m]/g)) {
+            console.log("Latest script version installed");
+            GM_setValue("updateChecked", false);
+        } else if (z.split('e').join('')[0] == "m") {
+            console.log("Latest script version installed");
+            GM_setValue("updateChecked", false);
+        } else {
+            console.log(`A new ${GM_info.script.name} version available.`)
+            alert(`A new update is available for ${GM_info.script.name}! Current version: ${a}. Available version: ${b}`);
+            GM_setValue("updateChecked", true);
+        }
+        
+    }
+    
 }
