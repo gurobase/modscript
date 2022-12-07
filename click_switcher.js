@@ -58,6 +58,13 @@ The ability to click-switch the spam report status (Left clicking the message ar
 Initial release.
 */
 
+var myVersion = GM_info.script.version; 
+var myName = GM_info.script.name;
+
+fetch('https://raw.githubusercontent.com/gurobase/modscript/main/versions.json')
+  .then((response) => response.json())
+  .then((data) => 
+  console.log(data.find(x => x.name === myName)));
 
 function insertCss(css) {
 	const style = document.createElement('style');
