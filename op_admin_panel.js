@@ -26,14 +26,13 @@ All content types are now supported for the Reviewer Dump.
 Initial release.
 
 */
-
 var adminArray;
 if (typeof GM_getValue("agentArray") == "undefined") {
     console.log("Agent array missing. Creating...")
     GM_setValue("agentArray", []);
 } else {
     console.log("Agent array loaded. Total amount of agents stored:" + ` ${GM_getValue("agentArray").length}`);
-    
+
 
 }
 
@@ -101,8 +100,8 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
             console.log(results);
             diffRecordArray = results;
             getAgentIds(diffRecordArray);
-        });    
-        
+        });
+
     }
 
     function getAgentIds(diffRecordArray) {
@@ -130,12 +129,12 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
 
                     if (!jsonResponse.requests[0]) {
                         resolve(0);
-                    } else if (jsonResponse.requests[0].method === 'POST'){
+                    } else if (jsonResponse.requests[0].method === 'POST') {
                         resolve(1);
                     } else {
                         resolve(jsonResponse.requests[0].params.initiatorId);
                     }
-                    
+
                 }
             });
         }));
@@ -144,21 +143,24 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
             console.log(results);
             agentIDArray = results;
             getAgents(agentIDArray);
-        });    
-        
+        });
+
     }
 
     function getAgents(agentIdArray) {
         console.log("Getting Agent Usernames");
         let currentAgent;
-        
+
         agentArray = [];
         let agentPromises = agentIdArray.map(agentId => new Promise(resolve => {
             if (agentId == 0 || agentId == 1) {
                 resolve(0);
-            } else if(GM_getValue("agentArray").find(x => x.id === agentId)) {
+            } else if (GM_getValue("agentArray").find(x => x.id === agentId)) {
                 currentAgent = GM_getValue("agentArray").find(x => x.id === agentId);
-                resolve({id : currentAgent.id, username : currentAgent.username});
+                resolve({
+                    id: currentAgent.id,
+                    username: currentAgent.username
+                });
             } else {
                 let userURL = `https://control.stripchat.com/api/admin/users?search=${agentId}&order=asc&limit=20&offset=0&blocked=&deleted=&filters[search]=${agentId}&filters[blocked]=&filters[deleted]=`;
 
@@ -177,11 +179,14 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
                                 .parseFromString(response.responseText, "text/xml");
                         }
                         var jsonResponse = JSON.parse(response.responseText);
-                        resolve({id : jsonResponse.users[0].id, username : jsonResponse.users[0].username});
+                        resolve({
+                            id: jsonResponse.users[0].id,
+                            username: jsonResponse.users[0].username
+                        });
                     }
                 });
             }
-            
+
         }));
 
         Promise.all(agentPromises).then(results => {
@@ -189,11 +194,14 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
             let currentIndex = 1;
             console.log(results);
             results.forEach(agent => {
-                if(GM_getValue("agentArray").find(x => x.id === agent.id)) {
-                    
+                if (GM_getValue("agentArray").find(x => x.id === agent.id)) {
+
                 } else {
                     tempArray = GM_getValue("agentArray");
-                    tempArray.push({id : agent.id, username : agent.username});
+                    tempArray.push({
+                        id: agent.id,
+                        username: agent.username
+                    });
 
                     GM_setValue("agentArray", tempArray);
                 }
@@ -211,7 +219,7 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
                 currentIndex++;
             });
             document.getElementById("getReviewerButton").disabled = false;
-        });  
+        });
     }
 
 
@@ -221,20 +229,21 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
 
             const observer = new PerformanceObserver((list) => {
                 for (const entry of list.getEntries()) {
-                  if (entry.initiatorType === "fetch") {
-                    let reviewerList = document.getElementsByClassName("reviewer");
-                    for (var i = 0; i < reviewerList.length; i++) {
-                        reviewerList[i].innerHTML = "";
+                    if (entry.initiatorType === "fetch") {
+                        let reviewerList = document.getElementsByClassName("reviewer");
+                        for (var i = 0; i < reviewerList.length; i++) {
+                            reviewerList[i].innerHTML = "";
+                        }
+                        console.log('Fetch request detected to', entry.name);
+                        insertReviewerTd();
                     }
-                    console.log('Fetch request detected to', entry.name);
-                    insertReviewerTd();
-                  }
                 }
-              });
-              
-              observer.observe({
-                type: "resource", name: "https://control.stripchat.com/api/admin/v2/photos/list"
-              });
+            });
+
+            observer.observe({
+                type: "resource",
+                name: "https://control.stripchat.com/api/admin/v2/photos/list"
+            });
 
 
             let upperDiv = document.querySelector("body > div > div > main > section > div");
@@ -253,7 +262,7 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
 
 
 function insertReviewerTd() {
-    
+
     if (!document.getElementById("headReviewTh")) {
         var headPart = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr");
         var headReviewTh = document.createElement('th');
@@ -261,8 +270,8 @@ function insertReviewerTd() {
         headReviewTh.innerHTML = "Reviewer"
         headPart.insertBefore(headReviewTh, headPart.querySelector("th:nth-child(3)"));
     }
-    
-    
+
+
 
     var table = document.getElementsByClassName("table");
     var t = table[0];
@@ -273,7 +282,6 @@ function insertReviewerTd() {
             reviewerTd.classList.add("reviewer");
             t.rows[r].insertBefore(reviewerTd, t.rows[r].querySelector("td:nth-child(3)"));
         }
-        
+
     }
 }
-
