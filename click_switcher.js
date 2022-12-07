@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Click Switcher
-// @version      1.6.1
+// @version      1.6.2
 // @description  Switch post status with ease
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation
@@ -65,14 +65,18 @@ Initial release.
 
 var myVersion = GM_info.script.version; 
 var myName = "click_switcher";
+let newVersion;
 
 if (!GM_getValue("updateChecked")) {
     GM_setValue("updateChecked", false);
 }
-    fetch('https://raw.githubusercontent.com/gurobase/modscript/main/versions.json')
-    .then((response) => response.json())
-    .then((data) => 
-    checkVersion(data));
+let fetchURLDocsModel = "https://raw.githubusercontent.com/gurobase/modscript/main/versions.json"
+fetch(fetchURLDocsModel).then(function(response) {
+    return response.json();
+}).then(function(data) {
+    newVersion = data.find(x => x.name === myName).version;
+    checkVersion(newVersion);
+});
 
 
 
@@ -466,12 +470,12 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
 	});
 }
 
-function checkVersion(data) {
+function checkVersion(newVersion) {
     let a;
     let b;
 
     a = myVersion;
-    b = data.find(x => x.name = myName).version;
+    b = newVersion;
     let x=a.split('.').map(e=> parseInt(e));
     let y=b.split('.').map(e=> parseInt(e));
     let z = "";
