@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Click Switcher
-// @version      1.6.2
+// @version      1.6.3
 // @description  Switch post status with ease
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation
@@ -156,7 +156,7 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
 
                             var table = document.getElementsByClassName("table");
                             var t = table[0];
-                            for (var r = 1; r < t.rows.length; r++) {
+                            for (var r = 1; r < t.rows.length -1; r++) {
                                 if (res == 1 && document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked == true) {
                                     t.rows[r].classList.add("contentRejected");
                                 } else {
