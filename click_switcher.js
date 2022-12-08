@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Click Switcher
-// @version      1.6.3
+// @version      1.6.4
 // @description  Switch post status with ease
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation
@@ -132,6 +132,21 @@ rejectAllDiv.innerHTML = `<button id="rejectAllButton" class="button is-primary 
 
 
 if (window.location.href == "https://control.stripchat.com/new/photos/moderation") {
+
+
+function rejectedStatusStyle(res) {
+
+    var table = document.getElementsByClassName("table");
+    var t = table[0];
+    for (var r = 1; r < t.rows.length -1; r++) {
+        if (res == 1 && document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked == true) {
+            t.rows[r].classList.add("contentRejected");
+        } else {
+            t.rows[r].classList.remove("contentRejected");
+        }
+    }
+}
+
     var pageLoaded = false;
     let headMain = "";
     let approveAllField;
@@ -147,30 +162,6 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
                         rejectAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2)");
                         approveAllField.appendChild(approveAllDiv);
                         rejectAllField.appendChild(rejectAllDiv);
-                    };
-
-                    approveAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1)");
-                    rejectAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2)");
-                    if (pageLoaded == false) {
-                        function rejectedStatusStyle(res) {
-
-                            var table = document.getElementsByClassName("table");
-                            var t = table[0];
-                            for (var r = 1; r < t.rows.length -1; r++) {
-                                if (res == 1 && document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked == true) {
-                                    t.rows[r].classList.add("contentRejected");
-                                } else {
-                                    t.rows[r].classList.remove("contentRejected");
-                                }
-                            }
-                        }
-
-
-                        approveAllField.appendChild(approveAllDiv);
-                        rejectAllField.appendChild(rejectAllDiv);
-
-
-
 
                         let approveAllLabel = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label")
                         let rejectAllLabel = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label");
@@ -204,6 +195,66 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
                             }
 
                         });
+                        
+                    } else {
+                        
+                    };
+
+                    // approveAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1)");
+                    // rejectAllField = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2)");
+                    if (pageLoaded == false) {
+                        // function rejectedStatusStyle(res) {
+
+                        //     var table = document.getElementsByClassName("table");
+                        //     var t = table[0];
+                        //     for (var r = 1; r < t.rows.length -1; r++) {
+                        //         if (res == 1 && document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label > input[type=checkbox]").checked == true) {
+                        //             t.rows[r].classList.add("contentRejected");
+                        //         } else {
+                        //             t.rows[r].classList.remove("contentRejected");
+                        //         }
+                        //     }
+                        // }
+
+
+                        // approveAllField.appendChild(approveAllDiv);
+                        // rejectAllField.appendChild(rejectAllDiv);
+
+
+
+
+                        // let approveAllLabel = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(1) > label")
+                        // let rejectAllLabel = document.querySelector("body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > thead > tr > th:nth-last-child(n) > div > span > div > div > div:nth-child(2) > label");
+
+                        // document.getElementById("approveAllButton").addEventListener("click", item => {
+                        //     if (rejectAllLabel.querySelector("input[type=checkbox]").checked) {
+                        //         rejectAllLabel.click();
+                        //     }
+                        //     if (!approveAllLabel.querySelector("input[type=checkbox]").checked) {
+                        //         approveAllLabel.click();
+                        //         rejectedStatusStyle(0);
+                        //     } else {
+                        //         approveAllLabel.click();
+                        //         approveAllLabel.click();
+                        //         rejectedStatusStyle(0);
+                        //     }
+                        // });
+
+
+                        // document.getElementById("rejectAllButton").addEventListener("click", item => {
+                        //     if (approveAllLabel.querySelector("input[type=checkbox]").checked) {
+                        //         approveAllLabel.click();
+                        //     }
+                        //     if (!rejectAllLabel.querySelector("input[type=checkbox]").checked) {
+                        //         rejectAllLabel.click();
+                        //         rejectedStatusStyle(1);
+                        //     } else {
+                        //         rejectAllLabel.click();
+                        //         rejectAllLabel.click();
+                        //         rejectedStatusStyle(1);
+                        //     }
+
+                        // });
 
                         document.body.addEventListener('click', function(evt) {
                             if (evt.target.localName == "td" || evt.target.localName == "li" || evt.target.localName == "ul") {
