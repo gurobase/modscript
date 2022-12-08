@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OP Admin Panel
-// @version      1.1.0
+// @version      1.1.1
 // @description  For when you need just a lil' bit more juice
 // @author       Guro
 // @match        https://control.stripchat.com/new/photos/moderation
@@ -21,6 +21,7 @@
 
 1.1.0:
 All content types are now supported for the Reviewer Dump.
+Reviewer tab moved closer to checkboxes.
 
 1.0.0:
 Initial release.
@@ -54,6 +55,7 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
         let diffType;
         document.getElementById("getReviewerButton").disabled = true;
         photoIDArray = [];
+        
         console.log("Getting Photo IDs")
         var table = document.getElementsByClassName("table");
         var t = table[0];
@@ -90,10 +92,26 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
                             .parseFromString(response.responseText, "text/xml");
                     }
                     var jsonResponse = JSON.parse(response.responseText);
-                    let diffRecord = jsonResponse.changes[0].fields.requestId.current;
+                    let lastStatusUpdateIndex;
+                    if (jsonResponse.changes.length > 0) {
+                        for (var i = 0; i < jsonResponse.changes.length; i++) {
+                            if (jsonResponse.changes[i].fields.status) {
+                                lastStatusUpdateIndex = i;
+                                break;
+                            } else if (jsonResponse.changes[i].fields.moderationStatus) {
+                                lastStatusUpdateIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    let diffRecord = jsonResponse.changes[lastStatusUpdateIndex].fields.requestId.current;
                     resolve(diffRecord);
                 }
             });
+        }).catch(error => {
+            document.getElementById("getReviewerButton").disabled = false;
+            console.log(error);
         }));
 
         Promise.all(diffRecordPromises).then(results => {
@@ -137,6 +155,9 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
 
                 }
             });
+        }).catch(error => {
+            document.getElementById("getReviewerButton").disabled = false;
+            console.log(error);
         }));
 
         Promise.all(agentIdPromises).then(results => {
@@ -187,6 +208,9 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
                 });
             }
 
+        }).catch(error => {
+            document.getElementById("getReviewerButton").disabled = false;
+            console.log(error);
         }));
 
         Promise.all(agentPromises).then(results => {
@@ -215,7 +239,7 @@ if (window.location.href == "https://control.stripchat.com/new/photos/moderation
                     agentId = agent.id;
                     agentUsername = agent.username;
                 }
-                document.querySelector(`body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > tbody > tr:nth-child(${currentIndex}) > td:nth-child(3)`).innerHTML = `<b>${agentUsername}</b> (${agentId})`
+                document.querySelector(`body > div > div > main > div > div.table-wrapper.has-mobile-cards > table > tbody > tr:nth-child(${currentIndex})`).lastElementChild.previousSibling.innerHTML = `<b>${agentUsername}</b> (${agentId})`
                 currentIndex++;
             });
             document.getElementById("getReviewerButton").disabled = false;
@@ -268,7 +292,8 @@ function insertReviewerTd() {
         var headReviewTh = document.createElement('th');
         headReviewTh.id = "headReviewTh";
         headReviewTh.innerHTML = "Reviewer"
-        headPart.insertBefore(headReviewTh, headPart.querySelector("th:nth-child(3)"));
+        // headPart.insertBefore(headReviewTh, headPart.querySelector("th:nth-child(3)"));
+        headPart.insertBefore(headReviewTh, headPart.lastElementChild);
     }
 
 
@@ -280,7 +305,7 @@ function insertReviewerTd() {
         if (t.rows[r].getElementsByClassName("reviewer").length == 0) {
             var reviewerTd = document.createElement('td');
             reviewerTd.classList.add("reviewer");
-            t.rows[r].insertBefore(reviewerTd, t.rows[r].querySelector("td:nth-child(3)"));
+            t.rows[r].insertBefore(reviewerTd, t.rows[r].lastElementChild);
         }
 
     }
