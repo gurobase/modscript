@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Shift Report Dumper
-// @version      1.5.1
+// @version      1.5.2
 // @description  Dump yours shift reports with ease.
 // @author       Guro
 // @match        https://control.stripchat.com/report/supportAdmin
@@ -661,8 +661,8 @@ if (window.location.href == "https://control.stripchat.com/report/supportAdmin")
         xhr.send(JSON.stringify({
             filterCategory: category,
             filterCvStatus: "",
-            filterDateFrom: "2021-10-13T00:00:00",
-            filterDateTo: tomorrow,
+            //filterDateFrom: "2021-10-13T00:00:00",
+            //filterDateTo: tomorrow,
             filterStatus: "notReviewed",
             filterUser: "",
             page: 1,
